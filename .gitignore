@@ -1,0 +1,29 @@
+# build output
+dist/
+.output/
+
+# dependencies
+node_modules/
+
+# astro
+.astro/
+
+# environment
+.env
+.env.production
+
+# macOS / editor cruft
+.DS_Store
+*.log
+.vscode/
+
+# Local AI-tool config; the site does not need it
+.claude/
+
+# Impeccable design context — real files live in the private karrie-site-notes repo.
+# Symlinked here so the design tooling can find them; never committed.
+PRODUCT.md
+docs/DESIGN.md
+
+# Design-tooling working directory. Never committed.
+.impeccable/

@@ -1,0 +1,50 @@
+---
+import { getEntry } from 'astro:content';
+const site = (await getEntry('site', 'main'))!.data;
+const SOCIALS = [{ label: 'LinkedIn', href: site.linkedin }];
+const year = new Date().getFullYear();
+---
+
+{/* A printer's imprint: one hairline, one line of type, the width of the
+    container. LinkedIn is the only contact route on the site — there is no
+    email address here or anywhere else, deliberately. */}
+<footer>
+  <p class="imprint">
+    {
+      SOCIALS.map((s) => (
+        <a class="tap" href={s.href} rel="me noopener" target="_blank">
+          {s.label}
+          <span class="visually-hidden"> (opens in a new tab)</span>
+        </a>
+      ))
+    }
+    <span class="sep" aria-hidden="true">·</span>
+    <span class="muted">Set in Spectral</span>
+    <span class="sep" aria-hidden="true">·</span>
+    <span class="muted">&copy; {year} {site.name}</span>
+  </p>
+</footer>
+
+<style>
+  footer {
+    padding: var(--space-6) 0 var(--space-8);
+    border-top: 1px solid var(--rule);
+  }
+  .imprint {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    margin: 0;
+    max-width: none;
+    font-size: var(--text-meta);
+  }
+  .imprint a {
+    /* Clears the 44px tap target through padding without drawing a box. */
+    display: inline-block;
+    padding: var(--space-3) 0;
+  }
+  .sep {
+    color: var(--muted);
+  }
+</style>

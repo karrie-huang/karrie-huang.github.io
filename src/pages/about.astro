@@ -1,0 +1,139 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+const { bio, experience, elsewhere, education } = (await getEntry('about', 'main'))!.data;
+---
+
+<Base title="About" description="About Karrie.">
+  <h1>About</h1>
+
+  <div class="prose measure">
+    {bio.map((para) => <p>{para}</p>)}
+  </div>
+
+  {/* Each entry sits on the same two tracks as a lot: the thing on the left in
+      the body column, its date on the right where a lot's fields go. Everything
+      on the page shares one left edge with the prose above it. */}
+  <section class="block">
+    <h2>Experience</h2>
+    <ul class="entries">
+      {
+        experience.map((e) => (
+          <li>
+            <div>
+              <p class="line">
+                <span class="role">{e.role}</span><span class="org">, {e.org}</span>
+              </p>
+              {e.note && <p class="note">{e.note}</p>}
+            </div>
+            <p class="label period">{e.period}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>Elsewhere</h2>
+    {/* No date column here: only one of these is dated, and a column of
+        placeholder dashes was drawing the eye to the absence. */}
+    <ul class="entries plain">
+      {
+        elsewhere.map((e) => (
+          <li>
+            <p class="line">
+              <span class="role">{e.role}</span><span class="org">, {e.org}</span>
+              {e.period && <span class="when">, {e.period}</span>}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="block last">
+    <h2>Education</h2>
+    <ul class="entries plain">
+      <li>
+        <p class="line">
+          <span class="role">{education.degree}</span><span class="org">, {education.school}</span>
+        </p>
+        <p class="note">{education.detail}</p>
+      </li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  h1 {
+    padding: var(--space-8) 0 var(--space-6);
+    margin: 0;
+  }
+
+  .prose {
+    padding-bottom: var(--space-6);
+  }
+
+  .block {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--rule);
+  }
+  .block h2 {
+    margin: 0 0 var(--space-5);
+  }
+  .block.last {
+    padding-bottom: var(--space-8);
+  }
+
+  .entries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .entries li {
+    display: grid;
+    gap: var(--space-1) var(--space-5);
+    padding-bottom: var(--space-5);
+  }
+  .entries li:last-child {
+    padding-bottom: 0;
+  }
+
+  .line {
+    margin: 0;
+    max-width: var(--measure);
+  }
+  .role {
+    font-weight: 600;
+  }
+  .org,
+  .when {
+    font-style: italic;
+    color: var(--muted);
+  }
+  .note {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-small);
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+  .period {
+    margin: 0;
+  }
+
+  @media (min-width: 56rem) {
+    .entries li {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      align-items: baseline;
+    }
+    /* The date is a field like any other: same column, same tracked capitals
+       as a lot's PROVENANCE or CONDITION. */
+    .period {
+      padding-top: var(--space-1);
+    }
+    .entries.plain li {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

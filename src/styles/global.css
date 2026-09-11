@@ -1,0 +1,326 @@
+/* Spectral does the reading and the display. Archivo appears in exactly one
+   place — the small tracked capitals on a lot's field labels — and nowhere
+   else. Self-hosted, no CDN, so there is no third-party request at runtime. */
+@import '@fontsource/spectral/400.css';
+@import '@fontsource/spectral/400-italic.css';
+@import '@fontsource/spectral/600.css';
+@import '@fontsource-variable/archivo/wght.css';
+
+/* ---- Design tokens --------------------------------------------------------
+
+   The site is a catalogue. Each piece of work is a lot: a number, a title, a
+   description, and labelled fields that say what is known and what is not.
+
+   COLOUR IS THE SHORTEST RULE HERE AND THE EASIEST TO BREAK.
+
+   There is exactly one blue. Body text, headings, the lead rule and every link
+   are all `--ink`. A second blue — a brighter one for links, a duller one for
+   rules — is the specific thing this design refuses: two blues of the same hue
+   at different values read as a near-miss rather than as a system, and every
+   attempt at it looked like a mistake.
+
+   `--counter` is ochre and belongs to the lot numerals alone. It is the only
+   other colour on the page. If a change would put it in a second place, that
+   is the wrong change.
+   -------------------------------------------------------------------------- */
+:root {
+  --bg: #ffffff;
+  --ink: #152150; /* navy — text, headings, links, rules. The only blue. */
+  --muted: #555f80; /* secondary text; the ink desaturated, never grey */
+  --rule: #e2e5ee; /* hairlines between lots */
+  --accent: #152150; /* deliberately identical to --ink. See above. */
+  --counter: #8f6a15; /* ochre — lot numerals, and nothing else */
+
+  --serif: Spectral, Georgia, 'Times New Roman', serif;
+  --sans: 'Archivo Variable', system-ui, -apple-system, sans-serif;
+
+  /* The page is wide and the reading column is not. `--page` is the outer
+     container the masthead rule and the lot grid span; `--measure` is the
+     ~67-character column every run of prose is held to. Losing that
+     distinction is how a catalogue turns back into a document. */
+  --page: 76rem;
+  --measure: 38rem;
+  --gutter: clamp(1.2rem, 5vw, 4rem);
+
+  /* The smallest a tappable thing is allowed to be. 44px is the accessibility
+     floor — below it, people with imprecise aim miss. Every text link clears
+     it through line-height; the theme toggle is a bare dot and declares its
+     hit area explicitly. */
+  --tap-min: 44px;
+
+  /* ---- Type scale --------------------------------------------------------
+     Eight steps, and every piece of text on the site uses one of them. There
+     are no one-off font sizes in the page files; `npm run check:tokens` fails
+     the build if one appears.
+
+     `--text-study` exists because a case study runs to a thousand words and its
+     section headings were set at --text-section: 1.14x the body, told apart only
+     by weight, which read as bolded body rather than as structure on a phone.
+     It is deliberately NOT --text-section, which also sets the two standfirsts.
+
+     The four largest steps are fluid rather than stepped at a breakpoint. The
+     range matters more than the numbers: display is roughly 4x body, where the
+     old site's largest text was 1.8x. On a page with no images, type scale is
+     the only drama available, and the previous design was not spending it. */
+  /* Retuned 2026-09-06 for a 50-character headline (was 36): the top came down
+     from 4.8rem so four lines carry the same visual mass three did, and the
+     phone floor from 2.5rem so lot 1's links stay inside an 844px first screen.
+     Measured, not guessed — see docs/SPEC.md, "The mobile fold". */
+  --text-display: clamp(2.25rem, 6.8vw, 4.4rem); /* the homepage headline */
+  --text-h1: clamp(2rem, 4.6vw, 2.85rem); /* page titles, lot 1, case studies */
+  --text-lot: clamp(1.35rem, 2.8vw, 1.72rem); /* lot titles 2..n */
+  --text-study: clamp(1.4rem, 2.5vw, 1.6rem); /* section heads in a case study */
+  --text-section: clamp(1.28rem, 2.2vw, 1.35rem); /* h2, and a standfirst */
+  --text-body: 1.1875rem; /* ordinary reading text */
+  --text-small: 1.05rem; /* field values, descriptions */
+  --text-meta: 0.95rem; /* dates, the imprint, back links */
+  --text-label: 0.72rem; /* Archivo caps: a lot's field labels */
+
+  /* ---- Spacing scale -----------------------------------------------------
+     Eight steps, smallest to largest, used for every margin and padding. If
+     the page feels cramped or loose, change these rather than hunting
+     individual numbers — that is what keeps the vertical rhythm consistent
+     instead of accidental. */
+  --space-1: 0.25rem;
+  --space-2: 0.45rem;
+  --space-3: 0.8rem;
+  --space-4: 1.1rem;
+  --space-5: 1.5rem;
+  --space-6: 2.2rem;
+  --space-7: 3.2rem;
+  --space-8: 4.5rem;
+
+  color-scheme: light;
+}
+
+/* Dark keeps the rule: one colour for text, headings, links and rules, plus
+   the ochre counter lightened enough to survive on a navy ground. */
+:root[data-theme='dark'] {
+  --bg: #0d1426;
+  --ink: #e8ecf4;
+  --muted: #94a0bb;
+  --rule: #212c44;
+  --accent: #e8ecf4;
+  --counter: #d7a94a;
+
+  color-scheme: dark;
+}
+
+/* ---- Base ----------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--text-body);
+  line-height: 1.64;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  /* Old-style figures give dates and years that typeset feel — they sit into
+     the line rather than standing above it. Lot numerals and any tabular
+     column opt back out; see `.lotno` and `.date`. */
+  font-variant-numeric: oldstyle-nums;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* The outer container. Everything on the site sits in one of these, including
+   the masthead, so the hairlines all start and end on the same two verticals. */
+.wrap {
+  width: 100%;
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+/* Prose is held to the reading measure inside that wide container. */
+.measure {
+  max-width: var(--measure);
+}
+
+/* ---- Typography ----------------------------------------------------------- */
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.4em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-h1);
+}
+
+h2 {
+  font-size: var(--text-section);
+  letter-spacing: -0.012em;
+  margin-top: var(--space-7);
+}
+
+h3 {
+  font-size: var(--text-small);
+  letter-spacing: -0.008em;
+  margin-top: var(--space-5);
+}
+
+p {
+  margin: 0 0 var(--space-4);
+  max-width: var(--measure);
+}
+
+/* One link treatment everywhere: the ink colour, told apart by a 2px underline
+   rather than by a second colour. The underline is the whole affordance, so it
+   is heavier than a hairline on purpose — at 1px it read as a printing flaw.
+
+   The underline used to be a paler blue, #9aa4c4, which measured 2.48:1 on
+   white — under the 3:1 WCAG 1.4.11 floor for the visual indicator of a
+   control. Since the underline IS the affordance here, that made every link on
+   the site fail, and "Try it" on the homepage read as plain text at skim
+   distance. It is ink now. Hover thickens the rule rather than recolouring it,
+   because there is no second colour available to move to. */
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--ink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-thickness 0.15s ease;
+}
+
+a:hover {
+  text-decoration-thickness: 3px;
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: var(--space-7) 0;
+}
+
+/* ---- Browser surfaces -----------------------------------------------------
+   The parts nobody draws still carry the design. Selection, the focus ring and
+   the scrollbar all ship with defaults that belong to no design system, and
+   leaving them is the cheapest way to make a considered page look assembled. */
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--counter);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+html {
+  scrollbar-color: var(--muted) transparent;
+}
+
+/* ---- Small shared pieces -------------------------------------------------- */
+.muted {
+  color: var(--muted);
+}
+
+.date {
+  font-style: italic;
+  color: var(--muted);
+  font-size: var(--text-meta);
+  white-space: nowrap;
+}
+
+/* Archivo, tracked capitals, small. The one place a second family appears. */
+.label {
+  font-family: var(--sans);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Standalone links — nav, the wordmark, a lot's one action, the back link —
+   have to clear the 44px tap floor, and most of them are a single line of type
+   about 25px tall. This adds the missing height as a centred pseudo-element
+   rather than as padding: padding on a masthead link grows the masthead, and on
+   a phone that height comes straight out of the evidence the homepage has to
+   fit above the fold. The overlay is full-width and vertical only, so adjacent
+   links never steal each other's clicks.
+
+   Deliberately not applied to a link inside a lot's field values: those are
+   inline in a run of text, where WCAG's own inline exception applies, and a
+   44px overlay there would reach into the row above. */
+.tap {
+  position: relative;
+}
+.tap::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: var(--tap-min);
+}
+
+/* Visible to screen readers only. For text a sighted reader gets from a glyph
+   or from context — e.g. "opens in a new tab" behind an arrow. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--bg);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--rule);
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 10;
+}
+
+/* ---- Motion ---------------------------------------------------------------
+   One authored moment: the homepage hero settles on load. Nothing animates on
+   scroll, nothing delays reading, and no second entrance is added elsewhere. */
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

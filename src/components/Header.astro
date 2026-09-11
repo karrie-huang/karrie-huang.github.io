@@ -1,0 +1,185 @@
+---
+import { getEntry } from 'astro:content';
+const site = (await getEntry('site', 'main'))!.data;
+// Top navigation. Structure, not prose: the two pages are fixed, so this lives
+// here rather than in the words files.
+const NAV = [
+  { label: 'Work', href: '/work' },
+  { label: 'About', href: '/about' },
+];
+const base = import.meta.env.BASE_URL;
+// Normalize current path so nav highlighting works with or without a base path.
+const path = Astro.url.pathname.replace(base, '/').replace(/\/+$/, '') || '/';
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path === href || path.startsWith(href + '/');
+---
+
+{/* The masthead. Her name is set as the catalogue's sale title: tracked
+    capitals, over a hairline that spans the whole container. The old header
+    put the wordmark at 1.05rem — smaller than the body text on the page it
+    was heading — which is the single clearest symptom of a design that never
+    committed to anything. */}
+<header class="masthead">
+  <a href={base} class="wordmark tap">{site.name}</a>
+
+  <nav aria-label="Primary">
+    {
+      NAV.map((item) => (
+        <a
+          class="tap"
+          href={base.replace(/\/$/, '') + item.href}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+    {/* aria-pressed carries the state a sighted reader takes from the dot. The
+        label names the state, not the control. Both are corrected by the
+        script below on first paint, since the server cannot know the theme. */}
+    <button id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false">
+      <span aria-hidden="true" class="theme-dot"></span>
+    </button>
+  </nav>
+</header>
+
+<script is:inline>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    var sync = function () {
+      btn.setAttribute(
+        'aria-pressed',
+        document.documentElement.getAttribute('data-theme') === 'dark' ? 'true' : 'false'
+      );
+    };
+    // The theme is decided by the pre-paint script in Base.astro, so by the time
+    // this runs the answer already exists on <html>. Read it rather than guess.
+    sync();
+    btn.addEventListener('click', function () {
+      var el = document.documentElement;
+      var next = el.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      el.setAttribute('data-theme', next);
+      sync();
+      try {
+        localStorage.setItem('theme', next);
+      } catch (e) {}
+    });
+  })();
+</script>
+
+<style>
+  .masthead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-6) 0 var(--space-5);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .wordmark {
+    font-size: var(--text-lot);
+    font-weight: 600;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  /* The wordmark is the one link on the site with no underline: it is the
+     masthead, not a link in running text, and underlining a tracked capital
+     line just fights the tracking. Hover brings a 2px ink rule up under it
+     instead — the same rule the lead lot carries, and the same device that
+     marks the current nav item. Ochre is NOT available here: it belongs to the
+     lot numerals alone, and a hover state is a second place. */
+  .wordmark {
+    border-bottom: 2px solid transparent;
+    padding-bottom: var(--space-1);
+  }
+  .wordmark:hover {
+    border-bottom-color: var(--ink);
+  }
+
+  nav {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-5);
+  }
+
+  nav a {
+    font-family: var(--sans);
+    font-size: var(--text-meta);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    padding-bottom: var(--space-1);
+  }
+  nav a:hover {
+    color: var(--ink);
+  }
+  /* Current page is marked by ink plus a 2px rule, not by a second colour and
+     not by the site's link underline — so the nav still can't be confused with
+     the links inside a lot, and ochre still means one thing only. The rule is
+     the mark that survives hover: hovering a sibling brings it to ink too, but
+     only the current item carries the rule. */
+  nav a[aria-current='page'] {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
+  #theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    color: var(--muted);
+    position: relative;
+  }
+  /* The visible dot is ~14px, well under the 44px accessibility floor. The hit
+     area is declared with a centred pseudo-element rather than with padding,
+     because padding would grow the masthead — and on a phone that height comes
+     straight out of the evidence the homepage has to fit. Costs zero layout. */
+  #theme-toggle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--tap-min);
+    height: var(--tap-min);
+  }
+  .theme-dot {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    /* half-filled "moon" so it reads in both modes */
+    background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+  }
+  #theme-toggle:hover {
+    color: var(--ink);
+  }
+
+  /* One line at every width. Stacking the wordmark over the nav costs about a
+     full row of the first screen on a phone, directly above the evidence the
+     reader came for. */
+  @media (max-width: 34rem) {
+    .masthead {
+      gap: var(--space-3);
+      padding: var(--space-5) 0 var(--space-4);
+    }
+    nav {
+      gap: var(--space-4);
+    }
+    nav a {
+      font-size: var(--text-label);
+    }
+  }
+</style>

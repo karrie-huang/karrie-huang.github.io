@@ -1,0 +1,101 @@
+# (These comments vanish the first time this file is saved from Pages CMS.)
+# The page at /work/possible-podcast. The file name is the web address.
+#
+# Built from what is publicly known — Reid Hoffman's launch post — plus your own
+# craft reasoning. Nothing from the internal write-up beyond that.
+title: AI localization workflow
+org: Possible Podcast
+role: Product & Strategy
+period: "2025"
+
+standfirst: >-
+  Possible now publishes in French, in Reid's and Aria's own AI-cloned voices.
+  Getting there meant deciding not to buy the thing that already existed, and
+  building the pipeline instead. An episode went from two weeks to an hour.
+
+# Read before the story rather than after it. Saying this first costs nothing
+# and buys the rest of the page its credibility.
+note: >-
+  This is 2025 work and a good deal of it is already out of date: steps that
+  took a careful chain of prompts are single features inside products now. It
+  was never cutting-edge, and I am not an engineer. It was assembled out of AI
+  anyone could buy. Read it for the judgement. The hard part was never the
+  building. It was taste, knowing when what came out wasn't good enough, and
+  the motivation to keep chasing it.
+
+sections:
+  - heading: Why we didn't just buy it
+    paras:
+      - >-
+        Buying was the obvious call: faster, cheaper, and available that week.
+        So we tested what was on the market properly, using Mandarin as the
+        trial language. One of us spoke it, and being a non-Romance language it
+        was the harder case to pass.
+      - >-
+        Three problems were survivable. The tools translated line by line, which
+        flattens a conversation into something correct and stilted, because
+        Mandarin doesn't order a sentence the way English does. Pacing was
+        worse: Mandarin says the same thing in less time, and the tools fit each
+        translated line into the slot its English original occupied, so the
+        speed of speech whiplashed from line to line. The generated video sat in
+        the uncanny valley.
+      - >-
+        The fourth was disqualifying. None of them let us fix anything. We could
+        sometimes regenerate a bad line, but not lengthen it, shorten it or move
+        it, and some required regenerating the entire file to change a word.
+        That is workable for a clip and useless for an hour of conversation. A
+        system you cannot correct is not a system, it is a slot machine, and
+        that single property is what made building the cheaper option.
+
+  - heading: Where the model goes, and where a person does
+    paras:
+      - >-
+        The naive version, paste in the transcript and ask for a translation,
+        returns a summary wearing a translation's clothes. Every model we tried
+        came back dramatically shorter than the original, with real gaps,
+        reading like notes on a conversation rather than the conversation.
+      - >-
+        Translating in chunks fixed the length and most of the gaps, and
+        introduced a worse failure in their place: the occasional invented line.
+        Not egregious, a handful per script, but a sentence Reid never said is
+        disqualifying regardless of how reasonable it sounds. We moved the fix
+        upstream to the prompt: a two-pass approach that asks the model to
+        understand the passage before rendering it, which is what a human
+        translator does, rather than asking it to do both at once.
+      - >-
+        One finding was negative. Asking a model to check its own work does not
+        work, and a second model is no better. They mark generously, like
+        students grading a group project. Verification
+        had to be mechanical instead. Transcribe the audio that actually came
+        out, compare it against the script that went in, and regenerate
+        automatically below a confidence threshold. Self-assessment is not
+        evidence.
+
+  - heading: Two weeks to an hour
+    paras:
+      - >-
+        We built the first episode entirely by hand: chatbot for the
+        translation, audio generated speaker by speaker, clips stitched together
+        in iMovie. Slow on purpose. It is the only way to learn where a process
+        actually breaks, as opposed to where you expect it to.
+      - >-
+        That manual version got us most of the way. Automating it got us the
+        rest, and the speed did not come from automating more: it came from
+        knowing which parts to leave alone. The model handles volume: parsing
+        turns, translating, tagging emotion so the read isn't monotone,
+        synthesising, verifying itself against a transcript. A person handles
+        the judgement calls the model flags, which is a small enough surface to
+        fit in an hour rather than a fortnight.
+
+  - heading: What shipped
+    paras:
+      - >-
+        The French edition launched with both hosts' voices cloned, close enough
+        to native that the tone and accent survive the crossing. It is a real
+        feed with real listeners, not a demo, and it publishes on the show's
+        normal cadence. That was the whole point, because a localised show that
+        falls behind isn't a slower show, it's an abandoned one.
+
+evidence:
+  label: Reid Hoffman on the launch
+  href: https://www.linkedin.com/posts/reidhoffman_what-if-you-could-have-a-real-conversation-ugcPost-7386783892432764928-EAKC/

@@ -1,0 +1,19 @@
+---
+// One page per file in src/content/case-studies/. The file name is the web
+// address: inflection.yaml is /work/inflection. Adding a case study is adding a
+// file — no page to make, nothing here to edit.
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CaseStudy from '../../components/CaseStudy.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('caseStudies');
+  return entries.map((e) => ({ params: { slug: e.id }, props: { study: e.data } }));
+}
+
+const { study } = Astro.props;
+---
+
+<Base title={study.title} description={study.standfirst}>
+  <CaseStudy study={study} />
+</Base>

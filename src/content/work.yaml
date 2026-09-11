@@ -1,0 +1,87 @@
+lots:
+  - title: Quotidian
+    org: Personal
+    year: "2025"
+    lead: false
+    tagline: For the people you mean to talk to more often.
+    blurb: "Weak ties don't end in an argument. The college friend two time zones
+      away just goes quiet. So: one question, you each answer in your own time,
+      and neither has to go first. Then it opens, and it's yours to read
+      together. The next one comes without asking."
+    fields:
+      - label: Provenance
+        value: Built by me
+      - label: Condition
+        value: Shipped to friends and family
+      - label: Literature
+        value: Read more
+        href: https://thequotidian.replit.app/about
+    link:
+      label: Try it
+      href: https://thequotidian.replit.app
+  - title: Curator
+    org: Personal
+    year: "2026"
+    lead: true
+    tagline: For you, between wanting it and buying it
+    blurb: "Wanting starts with a sale, a friend's coat, a shop window. The rules
+      you set for yourself are never in your head at that moment. So: paste the
+      link or take a picture, and Curator holds it against your rules and what
+      you have wanted before. Yes, wait, or pass. Then the wait does its work,
+      and the log remembers."
+    fields:
+      - label: Provenance
+        value: Built by me
+      - label: Condition
+        value: In everyday use
+      - label: Literature
+        value: Read more
+        href: https://curatorlog.replit.app/about
+    link:
+      label: Try it
+      href: https://curatorlog.replit.app
+  - title: Social AI product line
+    org: Inflection AI
+    year: "2026"
+    lead: false
+    blurb: Conceived and drove the first products in a new multiuser social AI
+      line, writing the specs and partnering with design and engineering to take
+      them from concept to build.
+    fields:
+      - label: Scope
+        value: Concept and specs through to build, with design and engineering
+      - label: Condition
+        value: Unannounced, described at scope level only
+    caseStudy: inflection
+  - title: AI localization workflow
+    org: Possible Podcast
+    year: "2025"
+    lead: false
+    blurb: Built an AI-powered content localization pipeline that cut production
+      time substantially.
+    fields:
+      - label: Scope
+        value: An episode went from two weeks to an hour
+      - label: Literature
+        value: Reid Hoffman on the launch
+        href: https://www.linkedin.com/posts/reidhoffman_what-if-you-could-have-a-real-conversation-ugcPost-7386783892432764928-EAKC/
+    caseStudy: possible-podcast
+  - title: Safety study
+    lead: false
+    tagline: Harm doesn't arrive in a single message.
+    blurb: "What I learned about conversational AI safety from a summer spent in the
+      enforcement data. Mostly: that harm is gradual and a safety system built
+      to read one message at a time will miss it."
+    fields:
+      - label: Question
+        value: Is the model a bystander or participant?
+      - label: Method
+        value: Full-population enforcement data, turn-by-turn case review, data-driven
+          clustering
+    caseStudy: safety.yaml
+earlier:
+  label: Journalism
+  note: Editor-in-Chief of Anthro Magazine at Palo Alto High School. Reported and
+    edited across its sister publications.
+  linkLabel: Portfolio
+  href: https://kayaqua27.wixsite.com/journalismportfolio

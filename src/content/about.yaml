@@ -1,0 +1,31 @@
+bio:
+  - "I'm Karrie, reading philosophy, politics and economics (PPE) at Lady
+    Margaret Hall, Oxford, originally from Palo Alto. I think of product work in
+    two registers: an artist's side (philosophy, aesthetics, conviction about
+    craft) and a scientist's side (economics, measurement, and outcomes
+    orientation)."
+  - "In work: product, most recently at Inflection AI, where I've helped shape a
+    new social AI product line, from first concept and specs through the work
+    with design and engineering. Before that, an AI-powered localization
+    workflow at a podcast studio."
+  - Outside of that, I'm treasurer for my college's JCR, ride for and am
+    secretary of the Oxford University Equestrian Team, and teach glassblowing.
+    Before Oxford I edited a social activism magazine.
+experience:
+  - role: Product Intern
+    org: Inflection AI
+    period: Summer 2026
+    note: Product strategy and specs for a new social AI line.
+  - role: Product & Strategy
+    org: Possible Podcast
+    period: "2025"
+    note: AI localization workflow.
+elsewhere:
+  - role: Volunteer glassblowing instructor
+    org: Palo Alto Fiery Arts
+  - role: Secretary
+    org: Oxford University Equestrian Team
+education:
+  degree: BA, Philosophy, Politics & Economics
+  school: University of Oxford
+  detail: Final year · Expected 2027 · Lady Margaret Hall

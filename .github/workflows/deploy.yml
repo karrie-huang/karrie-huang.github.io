@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+on:
+  # Run on every push to the main branch
+  push:
+    branches: [main]
+  # Allow manual runs from the Actions tab
+  workflow_dispatch:
+
+# Permissions the deploy needs
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deploy at a time; don't cancel an in-progress run
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build with Astro
+        uses: withastro/action@v3
+        # Runs `npm ci` then `astro build`. Deliberately NO node-version here:
+        # the action picks a current Node itself (24 at the time of writing)
+        # and moves forward as the action updates. Pinning a version is what
+        # makes a build age out when GitHub retires that version. If this step
+        # ever fails on a Node error, see RECOVERY.md in the notes repo before adding one.
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,108 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getEntry } from 'astro:content';
+
+// Preloaded, not just @import-ed. The font CSS is pulled in by global.css, so
+// without these the browser cannot even discover the font files until it has
+// downloaded and parsed the stylesheet — long enough to paint the whole page in
+// Georgia and then reflow it in Spectral.
+//
+// All four faces are on the first screen, so none of them is a progressive
+// extra: 600 sets the headline and the wordmark, 400 the standfirst and the
+// field values, the italic every lot's description line, and Archivo the
+// tracked capitals on the field labels and the nav.
+//
+// The hrefs come from `?url` imports rather than being typed out, so they carry
+// Vite's content hash and stay identical to the ones the stylesheet requests.
+// If they diverge the browser downloads each face twice and the preload becomes
+// a pessimisation; check after any dependency bump.
+import fontRoman from '@fontsource/spectral/files/spectral-latin-400-normal.woff2?url';
+import fontItalic from '@fontsource/spectral/files/spectral-latin-400-italic.woff2?url';
+import fontBold from '@fontsource/spectral/files/spectral-latin-600-normal.woff2?url';
+import fontSans from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const site = (await getEntry('site', 'main'))!.data;
+const { title, description = site.description } = Astro.props;
+const pageTitle = title ? `${title} · ${site.name}` : site.name;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+// The share card. This link gets pasted into Slack, LinkedIn and email far more
+// often than it gets typed, so the unfurl is a real surface, not a nicety —
+// without an image it renders as a bare grey box. `public/og.png` is generated
+// from the site's own type and tokens; docs/DESIGN.md says how to regenerate it.
+// Must be absolute: relative og:image URLs are ignored by every major unfurler.
+const ogImage = new URL('og.png', Astro.site).href;
+
+// The homepage's own <title> is just her name, which wastes the most-read line
+// of an unfurl. Subpages already carry a real title.
+const ogTitle = title ? pageTitle : `${site.name} · ${site.headline}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {/* Set from site.yaml. Tells every legitimate search engine not to list
+        the page. It does not hide anything: the page is live and any link to
+        it works normally. Removing it later does not undo an existing listing
+        straight away, and adding it does not clear one straight away either;
+        search engines act on it the next time they look. */}
+    {site.hideFromSearch && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.svg`} type="image/svg+xml" />
+
+    {/* crossorigin is required even same-origin: fonts are always fetched in
+        CORS mode, and a preload without it is discarded and fetched twice. */}
+    <link rel="preload" href={fontRoman} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontBold} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontItalic} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontSans} as="font" type="font/woff2" crossorigin />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name} · ${site.headline}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Set the theme before first paint so there's no flash of the wrong mode. -->
+    <script is:inline>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = saved || (prefersDark ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="wrap">
+      <Header />
+      <main id="main">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

@@ -1,0 +1,236 @@
+---
+// Shared by every case study page. Extracted when the second one arrived, not
+// in anticipation of it: the two pages need byte-identical markup, and the risk
+// of them drifting apart is the same risk that duplicated the Quotidian
+// teardown (see AGENTS.md). Content comes from a file in src/content/case-studies/.
+//
+// The page sits on the same three-column grid as a lot — an empty numeral
+// column, the prose where a lot's description goes, the facts where a lot's
+// fields go. That is what makes a case study read as the inside of the entry
+// rather than as a different site.
+interface CaseStudy {
+  title: string;
+  /* Optional. A case study may withhold who the work was for, the role, or
+     when. Each row renders only if its value exists, and if none of them do
+     and there is no evidence link, the facts column is omitted entirely
+     rather than left as an empty list. */
+  org?: string;
+  role?: string;
+  period?: string;
+  fields?: { label: string; value: string; href?: string }[];
+  standfirst: string;
+  /* Optional framing note, rendered between the standfirst and the first
+     section. For anything a reader has to know before the story rather than
+     after it. Omit it and nothing renders. */
+  note?: string;
+  sections: { heading: string; paras: string[] }[];
+  evidence: { label: string; href: string };
+}
+
+interface Props {
+  study: CaseStudy;
+}
+
+const { study } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+/* An empty <dl> is invalid and reads as a stray landmark to a screen reader,
+   so the column goes rather than standing empty. The prose keeps its own
+   grid column either way, so the measure does not change. */
+const hasFacts = Boolean(study.org || study.role || study.period || study.fields?.length || study.evidence.href);
+---
+
+<article class="study">
+  <p class="back"><a class="tap" href={`${base}/work`}>Work</a></p>
+
+  <div class="prose">
+    <h1>{study.title}</h1>
+    <p class="standfirst">{study.standfirst}</p>
+
+    {study.note && <p class="note">{study.note}</p>}
+
+    {
+      study.sections.map((s) => (
+        <section>
+          <h2>{s.heading}</h2>
+          {s.paras.map((para) => <p>{para}</p>)}
+        </section>
+      ))
+    }
+  </div>
+
+  {/* The facts column, set exactly like a lot's fields. Evidence is here
+      rather than at the foot of two thousand words because it is the only
+      thing on the page a reader can check independently. It renders nothing
+      at all while `evidence.href` is empty, which is the state the Inflection
+      page is in — putting a URL in that field in its case-studies/*.yaml file is the whole of
+      what it takes to make the line appear.
+
+      The impeccable detector reports `first-viewport-column-overflow` on both
+      case studies: one column runs ~270% of the viewport while its sibling
+      fits in ~25%. Waived deliberately. That rule exists to catch a short
+      column stranded in dead space beside a tall hero; here the short column
+      is sticky and travels with the reader for the whole article, so the
+      condition the rule describes does not occur. A URL scan cannot see
+      stickiness. Do not "fix" this by balancing the columns — that would mean
+      padding the facts or truncating the prose, and both are worse. */}
+  {hasFacts && (
+  <dl class="facts">
+    {study.org && (<><dt class="label">Organisation</dt><dd>{study.org}</dd></>)}
+    {study.role && (<><dt class="label">Role</dt><dd>{study.role}</dd></>)}
+    {study.period && (<><dt class="label">Period</dt><dd>{study.period}</dd></>)}
+    {(study.fields ?? []).map((f) => (
+      <>
+        <dt class="label">{f.label}</dt>
+        <dd>
+          {f.href ? (
+            <a class="tap" href={f.href} target="_blank" rel="noopener">
+              {f.value}
+              <span class="visually-hidden"> (opens in a new tab)</span>
+            </a>
+          ) : (
+            f.value
+          )}
+        </dd>
+      </>
+    ))}
+    {
+      study.evidence.href && (
+        <>
+          <dt class="label">Evidence</dt>
+          <dd>
+            <a class="tap" href={study.evidence.href} target="_blank" rel="noopener">
+              {study.evidence.label}
+              <span class="visually-hidden"> (opens in a new tab)</span>
+            </a>
+          </dd>
+        </>
+      )
+    }
+  </dl>
+  )}
+</article>
+
+<style>
+  .study {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    padding: var(--space-6) 0 var(--space-8);
+  }
+
+  .back {
+    margin: 0;
+    font-size: var(--text-meta);
+  }
+  .back a {
+    display: inline-block;
+    padding: var(--space-2) 0;
+  }
+
+  .prose {
+    max-width: var(--measure);
+  }
+
+  h1 {
+    margin: 0 0 var(--space-4);
+  }
+
+  /* The one paragraph a skimming reader is guaranteed to read, so it does the
+     job of an abstract and has to be visibly larger than the body. */
+  .standfirst {
+    font-size: var(--text-section);
+    line-height: 1.5;
+    margin: 0 0 var(--space-6);
+  }
+
+  /* Set apart from the body rather than styled as another section: quieter,
+     smaller, and marked with a left rule. Deliberately NOT the 2px ink rule a
+     lead lot carries — that device means "this is the one thing here", and a
+     caveat means close to the opposite. A left rule reads as an aside in every
+     editorial tradition and costs the page no hierarchy. */
+  .note {
+    margin: 0 0 var(--space-7);
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--muted);
+    font-size: var(--text-small);
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  section {
+    margin-bottom: var(--space-6);
+  }
+  section h2 {
+    font-size: var(--text-study);
+    margin-top: 0;
+  }
+  section p:last-child {
+    margin-bottom: 0;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: var(--space-3) var(--space-4);
+    align-content: start;
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+  }
+  .facts dt {
+    padding-top: var(--space-1);
+  }
+  .facts dd {
+    margin: 0;
+    font-size: var(--text-small);
+  }
+
+  @media (min-width: 56rem) {
+    /* Same columns as a lot: empty numeral gutter, prose, facts. The back link
+       lives in the gutter so the prose starts at the page's true left edge. */
+    .study {
+      grid-template-columns: var(--space-6) minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 0 var(--space-5);
+      padding-top: var(--space-7);
+    }
+    .back {
+      grid-column: 1 / -1;
+      margin-bottom: var(--space-6);
+    }
+    .prose {
+      grid-column: 2;
+    }
+    .facts {
+      grid-column: 3;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      padding-top: 0;
+      border-top: 0;
+      /* Travels with the reader through two thousand words: the evidence link
+         is the page's one checkable claim and should never scroll away.
+         `align-self: start` is not optional here — a grid item stretches to its
+         row by default, so the box would be as tall as the prose and sticky
+         would have nothing to travel within. It measured as scrolling away on
+         the first scroll before this line existed. */
+      align-self: start;
+      position: sticky;
+      top: var(--space-5);
+    }
+    .facts dt {
+      padding-top: var(--space-4);
+    }
+    .facts dt:first-child {
+      padding-top: var(--space-2);
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .facts {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+    .facts dt {
+      padding-top: var(--space-3);
+    }
+  }
+</style>

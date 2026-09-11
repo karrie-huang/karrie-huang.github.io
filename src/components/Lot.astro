@@ -1,0 +1,200 @@
+---
+// One entry in the catalogue. Replaces Spotlight.astro: the site used to have a
+// single ruled-off block that meant "this is the lead", and everything else was
+// an unstyled list. Now every piece of work is described the same way — number,
+// title, description, labelled fields — and the lead is marked by size and by
+// the one 2px rule above it, not by being the only thing with any treatment.
+//
+// The fields are the reason this format was chosen. `Condition: Unannounced —
+// described at scope level only` is a sentence a catalogue can say with a
+// straight face, where a portfolio would have to apologise for the same fact.
+interface Field {
+  label: string;
+  value: string;
+  /* Optional. With one, the value renders as a link. */
+  href?: string;
+}
+
+interface Props {
+  /* The lot number. Ochre, hanging in the left column — the only place on the
+     site that carries the counter colour. */
+  number: number;
+  title: string;
+  /* The italic line under the title: a tagline, or "Org, year". Absent when a
+     lot has no tagline and neither an organisation nor a year. */
+  meta?: string;
+  /* Only on /work. The homepage lots are deliberately shorter. */
+  blurb?: string;
+  fields?: Field[];
+  /* Exactly one action per lot. A cold reader should never be choosing
+     between two links inside a single entry. */
+  action?: { label: string; href: string; external?: boolean };
+  /* A lead lot: larger title. The 2px rule is separate — it sits above
+     whichever lot is first on the page, lead or not. */
+  lead?: boolean;
+}
+
+const { number, title, meta, blurb, fields = [], action, lead = false } = Astro.props;
+---
+
+<article class:list={['lot', { lead }]}>
+  <p class="lotno">{number}</p>
+
+  <div class="body">
+    <h2 class="title">{title}</h2>
+    {meta && <p class="meta">{meta}</p>}
+    {blurb && <p class="blurb">{blurb}</p>}
+    {
+      action && (
+        <p class="action">
+          <a
+            class="tap"
+            href={action.href}
+            {...(action.external ? { target: '_blank', rel: 'noopener' } : {})}
+          >
+            {action.label}
+            {action.external && <span class="visually-hidden"> (opens in a new tab)</span>}
+          </a>
+        </p>
+      )
+    }
+  </div>
+
+  {
+    fields.length > 0 && (
+      <dl class="fields">
+        {fields.map((f) => (
+          <>
+            <dt class="label">{f.label}</dt>
+            <dd>
+              {f.href ? (
+                <a class="tap" href={f.href} target="_blank" rel="noopener">
+                  {f.value}
+                  <span class="visually-hidden"> (opens in a new tab)</span>
+                </a>
+              ) : (
+                f.value
+              )}
+            </dd>
+          </>
+        ))}
+      </dl>
+    )
+  }
+</article>
+
+<style>
+  .lot {
+    display: grid;
+    grid-template-columns: var(--space-6) minmax(0, 1fr);
+    gap: 0 var(--space-5);
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* One 2px rule per page — the same exclusivity the old spotlight relied on,
+     kept. It marks the top of the list, not a lead: since 2026-09-10 more than
+     one lot can be a lead (a tick in the CMS), and two heavy rules on one page
+     would blunt the device. Size is what says "lead"; the rule says "the
+     catalogue starts here". */
+  .lot:first-of-type {
+    border-top: 2px solid var(--ink);
+  }
+
+  /* Lining and tabular so the numerals align down the column and sit at cap
+     height. The rest of the site is old-style on purpose; a catalogue's lot
+     numbers are the one place that would look wrong. */
+  .lotno {
+    margin: 0;
+    padding-top: var(--space-2);
+    font-size: var(--text-small);
+    font-variant-numeric: lining-nums tabular-nums;
+    color: var(--counter);
+  }
+
+  .title {
+    margin: 0;
+    font-size: var(--text-lot);
+    line-height: 1.12;
+  }
+  .lot.lead .title {
+    font-size: var(--text-h1);
+  }
+
+  .meta {
+    margin: var(--space-2) 0 0;
+    font-style: italic;
+    font-size: var(--text-small);
+    color: var(--muted);
+  }
+
+  .blurb {
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-small);
+  }
+
+  /* Vertical padding is what gets the tap target past 44px without drawing a
+     box around it. */
+  .action {
+    margin: var(--space-4) 0 0;
+  }
+  .action a {
+    display: inline-block;
+    padding: var(--space-2) 0;
+    font-size: var(--text-small);
+  }
+
+  /* The row gap is --space-3 rather than --space-2 for a reason: a field value
+     can be a link, and a link carries a 44px hit area it did not ask for. At
+     the tighter gap that overlay reached into the row above and put a pointer
+     cursor over plain text. This is the smallest gap where it cannot. */
+  .fields {
+    /* Below the three-column width the lot has only two tracks, and auto
+       placement drops this third child into the numeral column — a 24px
+       gutter, which wrapped every field value to one word per line. It has to
+       be told to sit under the body. */
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: var(--space-3) var(--space-4);
+    margin: var(--space-4) 0 0;
+  }
+  .fields dt {
+    padding-top: var(--space-1);
+  }
+  .fields dd {
+    margin: 0;
+    font-size: var(--text-small);
+    line-height: 1.45;
+  }
+
+  /* Wide: the fields move into a third column, which is how a catalogue sets a
+     lot and what stops the page leaving half its width empty. */
+  @media (min-width: 56rem) {
+    .lot {
+      grid-template-columns: var(--space-6) minmax(0, 1.15fr) minmax(0, 1fr);
+    }
+    .fields {
+      grid-column: 3;
+      margin-top: var(--space-2);
+      align-content: start;
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .lot {
+      grid-template-columns: var(--space-5) minmax(0, 1fr);
+      gap: 0 var(--space-3);
+      padding: var(--space-5) 0;
+    }
+    /* Two columns of labels and values do not survive 390px; the label sits
+       above its value instead. */
+    .fields {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+    .fields dt {
+      padding-top: var(--space-4);
+    }
+  }
+</style>

@@ -1,0 +1,108 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Lot from '../../components/Lot.astro';
+import { isLead, lotAction, lotMeta } from '../../lib/lots';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { lots, earlier } = (await getEntry('work', 'main'))!.data;
+const rows = await Promise.all(lots.map(async (lot) => ({ lot, action: await lotAction(lot, base) })));
+---
+
+<Base title="Work" description="Selected work by Karrie Huang.">
+  {/* Same lots as the homepage, with the blurbs the homepage leaves out. The
+      reader who got here has already decided to spend more than thirty
+      seconds. */}
+  <h1>Work</h1>
+
+  {
+    rows.map(({ lot, action }, i) => (
+      <Lot
+        lead={isLead(lots, i)}
+        number={i + 1}
+        title={lot.title}
+        meta={lotMeta(lot)}
+        blurb={lot.blurb}
+        fields={lot.fields}
+        action={action}
+      />
+    ))
+  }
+
+  {/* School-era and on the record, but not level with the lots above. It gets
+      a field rather than a number, which is the whole of the distinction.
+
+      This is a `dl`, not a label stacked above a paragraph. It was the latter,
+      and that is an eyebrow — a small tracked-capital line sitting above the
+      text it introduces — which the craft floor bans outright and which this
+      design removed everywhere else. A tracked-capital `.label` is only ever a
+      field label, which means it sits BESIDE its value in a dt/dd pair, exactly
+      as PROVENANCE and CONDITION do in a lot. Do not restack it. */}
+  {
+    earlier && (
+      <dl class="earlier">
+        <dt class="label">{earlier.label}</dt>
+        <dd>
+          <span class="earlier-note">{earlier.note}</span>
+          <a class="tap" href={earlier.href} target="_blank" rel="noopener">
+            {earlier.linkLabel}
+            <span class="visually-hidden"> (opens in a new tab)</span>
+          </a>
+        </dd>
+      </dl>
+    )
+  }
+</Base>
+
+<style>
+  h1 {
+    padding: var(--space-8) 0 var(--space-6);
+    margin: 0;
+  }
+
+  /* Set exactly like a lot's fields: label beside value, same tracks, same
+     gaps. The only differences are that it carries no numeral and sits at
+     --text-meta, which is what subordinates it. */
+  .earlier {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    max-width: none;
+    margin: 0 0 var(--space-8);
+    padding: var(--space-6) 0 0;
+    border-top: 1px solid var(--rule);
+    font-size: var(--text-meta);
+  }
+  .earlier dt {
+    padding-top: var(--space-1);
+  }
+  .earlier dd {
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+  }
+  .earlier-note {
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+
+  @media (min-width: 56rem) {
+    /* Indented past the numeral gutter so it shares the lots' left edge. */
+    .earlier {
+      grid-template-columns: var(--space-6) max-content minmax(0, 1fr);
+    }
+    .earlier dt {
+      grid-column: 2;
+    }
+    .earlier dd {
+      grid-column: 3;
+    }
+  }
+
+  @media (max-width: 34rem) {
+    h1 {
+      padding: var(--space-6) 0 var(--space-5);
+    }
+  }
+</style>

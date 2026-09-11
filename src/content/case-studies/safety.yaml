@@ -1,0 +1,92 @@
+title: Safety study
+standfirst: Safety systems read one message at a time. But little that matters
+  happens in just one message.
+fields:
+  - label: Question
+    value: Is the model a bystander or a participant?
+  - label: Basis
+    value: Full-population counts, matched controls, turn-by-turn case review
+  - label: Condition
+    value: Retired system, written up as lessons
+note: These are my takeaways from a safety research project. The system I
+  studied is not in production anymore.
+sections:
+  - heading: Summary
+    paras:
+      - "Per-message classification is necessary but not sufficient.
+        Conversational AI safety needs a second layer that treats the trajectory
+        as the unit of analysis: the account over time, the model's own
+        contributions, and what it remembers."
+  - heading: How I worked
+    paras:
+      - "I had access to a full enforcement record over a multi-month window:
+        every flagged message, and every warning, strike, timeout and ban that
+        followed."
+      - I clustered the flagged population on standardised behavioural features.
+        Time to first violation, how long violations persisted, how many
+        categories were involved, how the account responded to enforcement.
+        Starting from behaviour instead of from pre-set categories is what made
+        the segments mean anything, and they reconciled exactly to the full
+        flagged population.
+      - I used full-population counts and matched control groups wherever
+        possible, so a claim about one segment was measured against a real
+        baseline instead of an internal average.
+      - I read the most serious cases turn by turn, to see what happened in the
+        conversation leading up to each violation, including what the model did.
+      - Every claim in the final report traces to a specific check, with a stated
+        confidence level and caveat, so the reasoning can be audited on its own.
+  - heading: What I learned
+    paras:
+      - 1. The base rate is reassuring but the tail isn't. Most people never
+        break a rule, and most who do break it once and stop. Enforcement, when
+        it lands, usually works. Then there is a very small share of users who
+        generate a disproportionate share of everything, accumulate strikes, and
+        stay active for months. The marginal value of safety work is not evenly
+        distributed. It lives in understanding that group.
+      - 2. The path to a violation is often gradual. Some violations fire
+        immediately, and those are the zero-tolerance categories. But a
+        meaningful minority start with content that earns only a warning and
+        escalate over days, getting more explicit or drifting into adjacent and
+        more severe categories. Those accounts end up with substantially more
+        violations than the immediate cases. Gradual means there is a window,
+        and a window is something you can design for. I would measure the
+        overlap between those accounts and the persistent group above before
+        anything else.
+      - "3. Is the model a bystander or a participant? I went in scoring users
+        and realised that was half the job. Reading escalations turn by turn,
+        you can see what the model contributes: whether it adds beyond what was
+        asked, whether it keeps the exchange going, whether it holds a line when
+        someone tries to leave. Those are answerable questions and most safety
+        systems don't ask them. A safety system that only scores the user is
+        scoring half the conversation."
+      - "4. Memory is a safety surface. Safety policy tends to be written about
+        two moments: what a user sends, and what the model says back. A product
+        with long-term memory has a third, and it usually goes unwritten.
+        Anything the model stores can come back in a conversation months later,
+        in a different context, with none of the checks that applied when it was
+        written. Before this work I would not have asked who owns the memory
+        store. Now I ask it of any product that remembers: what filters a write,
+        what expires, and how you remove something."
+      - "5. An enforcement tier is an engineering claim. It is written in a
+        policy document and delivered by a serving stack, and those are two
+        different claims. A timeout is only as long as the time it takes to
+        apply. I started by reading the policy and ended up measuring directly:
+        for each tier, what share of messages sent during it actually got
+        through. That is knowable with one query, and I would not take a
+        ladder's stated behaviour for its real behaviour again."
+      - 6. Enforcement data measures how much harm a system caught. It does not
+        measure who it caught by mistake, and two failure modes live in that
+        gap. A violation record can be built partly from things the model itself
+        generated, which raises a fair question about whether a user should
+        carry it. And someone disclosing harm they suffered can look, to a
+        classifier, a great deal like someone describing harm for other reasons.
+        Those are policy decisions, and someone has to make them on purpose.
+  - heading: Open questions
+    paras:
+      - Whether the classifier flags content at different rates across
+        languages. I saw enough to want the question answered and not enough to
+        answer it.
+      - The case-based work, with blinded second-rater coding, before treating
+        any pattern I saw as a rate.
+      - "A population I found incidentally: users in genuine distress who never
+        trip a rule at all."

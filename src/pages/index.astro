@@ -1,0 +1,100 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Lot from '../components/Lot.astro';
+import { isLead, lotAction, lotMeta } from '../lib/lots';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const site = (await getEntry('site', 'main'))!.data;
+const { lots } = (await getEntry('work', 'main'))!.data;
+// Leads are ticked in the CMS (first lot by default). Actions are resolved here, not in the template,
+// because a missing case study has to fail the build with a readable message.
+const rows = await Promise.all(lots.map(async (lot) => ({ lot, action: await lotAction(lot, base) })));
+---
+
+<Base>
+  {/* The hero is two columns at desktop width: the claim on the left at
+      display size, the standfirst on the right at reading size. The old
+      single-column version left the right half of a 1440px screen empty
+      without ever deciding to — this fills it, and gives the headline room
+      to be genuinely large rather than merely a heading. */}
+  <section class="hero rise">
+    <h1>{site.headline}</h1>
+    <div class="intro">
+      <p class="standfirst">{site.standfirst}</p>
+      <p class="more"><a class="tap" href={`${base}/about`}>More about me</a></p>
+    </div>
+  </section>
+
+  <h2 class="visually-hidden">Work</h2>
+
+  {/* No blurbs here: the homepage lots are deliberately shorter than /work. */}
+  {
+    rows.map(({ lot, action }, i) => (
+      <Lot lead={isLead(lots, i)} number={i + 1} title={lot.title} meta={lotMeta(lot)} fields={lot.fields} action={action} />
+    ))
+  }
+
+  <p class="all"><a class="tap" href={`${base}/work`}>All work</a></p>
+</Base>
+
+<style>
+  .hero {
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-8) 0 var(--space-7);
+  }
+
+  .hero h1 {
+    margin: 0;
+    font-size: var(--text-display);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    max-width: 13ch;
+  }
+
+  .standfirst {
+    margin: 0;
+    font-size: var(--text-section);
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 38ch;
+  }
+
+  .more {
+    margin: var(--space-4) 0 0;
+    font-size: var(--text-meta);
+  }
+
+  .all {
+    /* Paragraphs are capped at the reading measure globally; this one is a
+       full-width rule and has to opt out or its hairline stops short of the
+       lot rules above it. */
+    max-width: none;
+    margin: var(--space-6) 0 var(--space-8);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+    font-size: var(--text-small);
+  }
+
+  /* The standfirst sits on the headline's last baseline rather than at the top
+     of its column: aligned to the top it floated in the middle of nothing. */
+  @media (min-width: 56rem) {
+    .hero {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: var(--space-7);
+      align-items: end;
+    }
+  }
+
+  /* Phone: the headline is four lines here and the standfirst four more, so
+     the hero is tightened below and between — that is what keeps lot 1's
+     teardown link inside an 844px first screen with room to spare rather than
+     by three pixels. Measured, not guessed; re-measure if either changes. */
+  @media (max-width: 34rem) {
+    .hero {
+      padding: var(--space-6) 0 var(--space-5);
+      gap: var(--space-3);
+    }
+  }
+</style>

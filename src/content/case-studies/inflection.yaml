@@ -1,0 +1,56 @@
+title: Social AI product line
+org: Inflection AI
+role: Product Intern
+period: Summer 2026
+standfirst: "The strategy was social delight: something that makes a group's
+  time together better, rather than a tool each person queries alone. Taking
+  that from an open brief to specifications in build. The line is unannounced,
+  so this is an account of the reasoning rather than a tour of the screens."
+sections:
+  - heading: The brief was a space, not a spec
+    paras:
+      - "Almost every consumer AI product assumes one person talking to one
+        model. The line I worked on starts somewhere else: several people and a
+        model in the same conversation, where the people already have a
+        relationship with each other that predates the product and will outlast
+        it."
+      - That sounds like a change to the number of participants. It isn't. The
+        one-to-one case has settled a great deal. Who is being addressed. Whose
+        preferences the model holds. What it is safe to remember. What happens
+        when the user is wrong. None of it has an obvious answer once there are
+        three of you.
+      - "The bar was not usefulness. A model can be useful to a group and still
+        make the room worse. It flattens a conversation into turns, answers the
+        loudest person, treats a joke as a query. What we were aiming at was
+        delight: the group enjoying being together more because it was there."
+  - heading: What stood between that and shipping
+    paras:
+      - Four questions took most of my time. Who the model is talking to when
+        two people have asked for different things. What it should remember
+        about a group as distinct from what it remembers about each person in
+        it. What it does when the people in the room disagree with each other
+        rather than with it. And what one participant is entitled to know about
+        what another said.
+      - None of these are engineering questions, and none can be deferred. Every
+        one shows up in the first screen you design. Getting them wrong doesn't
+        produce a bug. It produces a product that feels invasive, or bland, or
+        like a group chat with an uninvited extra participant. Delight goes
+        first when any one of them is answered badly.
+  - heading: How I worked
+    paras:
+      - "There was no specification to implement, so I wrote them: deciding what
+        the first products in the line should be, arguing for those choices, and
+        then holding the version that survived contact with design and
+        engineering rather than the version I walked in with."
+      - Knowing which calls were mine was part of the job. Interaction detail,
+        the scope of a first release, which of the four questions above a given
+        product answers outright and which it deliberately ducks. Those were
+        mine, and I made them. What the line is for, and what we were prepared
+        to promise about it, were not. Those are worth raising early instead of
+        assuming an answer and finding out later.
+  - heading: What came out of it
+    paras:
+      - The specs went into build. Haven't finished yet.
+      - "What I'd claim is the judgement. I was handed ambiguity rather than a
+        backlog, and what came out of it was concrete enough for other people to
+        build from. "
