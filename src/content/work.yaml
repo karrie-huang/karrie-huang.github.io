@@ -2,7 +2,7 @@ lots:
   - title: Quotidian
     org: Personal
     year: "2025"
-    lead: false
+    lead: true
     tagline: For the people you mean to talk to more often.
     blurb: "Weak ties don't end in an argument. The college friend two time zones
       away just goes quiet. So: one question, you each answer in your own time,
@@ -44,9 +44,9 @@ lots:
     org: Inflection AI
     year: "2026"
     lead: false
-    blurb: Conceived and drove the first products in a new multiuser social AI
-      line, writing the specs and partnering with design and engineering to take
-      them from concept to build.
+    blurb: Conceived and drove the first products in a new multiuser social AI line,
+      writing the specs and partnering with design and engineering to take them
+      from concept to build.
     fields:
       - label: Scope
         value: Concept and specs through to build, with design and engineering
